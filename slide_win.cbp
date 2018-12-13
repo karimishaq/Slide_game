@@ -24,7 +24,7 @@
 			<Add directory="SDL2/include" />
 		</Compiler>
 		<Linker>
-			<Add option="-lmingw32 -lSDL2main -lSDL2 -lSDL2_image" />
+			<Add option="-lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_mixer" />
 			<Add library="user32" />
 			<Add library="gdi32" />
 			<Add library="winmm" />

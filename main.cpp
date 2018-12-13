@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_mixer.h>
 
 //Screen dimension constants
 const int SCREEN_WIDTH = 640;
@@ -16,6 +17,7 @@ int data[9]={8, 7, 6, 5, 4, 3, 2, 1, 0};
 int blank=4;
 int utama(SDL_Event *evt);
 SDL_Surface* screenSurface = NULL;
+Mix_Chunk *suara=NULL;
 
 struct status{
     int lpetak=0;
@@ -71,7 +73,7 @@ int main( int argc, char* args[] ){
 	SDL_Surface *gambar1=NULL;
 	SDL_Surface *gambar2=NULL;
 
-	if( SDL_Init( SDL_INIT_VIDEO ) < 0 && IMG_Init(IMG_INIT_PNG | IMG_INIT_JPG) <0){
+	if(SDL_Init( SDL_INIT_VIDEO | SDL_INIT_AUDIO ) < 0 && IMG_Init(IMG_INIT_PNG | IMG_INIT_JPG) <0){
 		printf( "SDL could not initialize! SDL_Error: %s\n", SDL_GetError() );
 	}else{
 		window = SDL_CreateWindow( "SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
@@ -80,12 +82,14 @@ int main( int argc, char* args[] ){
             SDL_Event sevent;
 
 			//Get window surface
+			Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 2, 4096);
 			screenSurface = SDL_GetWindowSurface( window );
             SDL_FillRect( screenSurface, NULL, SDL_MapRGB( screenSurface->format, 0xFF, 0x00, 0xFF ) );
 
+            suara=Mix_LoadWAV("efek.wav");
             gambar1=IMG_Load("slider.jpg");
             gambar2=IMG_Load("menang.png");
-            if(gambar1!=NULL && gambar2!=NULL){
+            if(gambar1!=NULL && gambar2!=NULL && suara!=NULL){
                 stat.gambar=SDL_ConvertSurface(gambar1, screenSurface->format, 0);
                 stat.lpetak=gambar1->w/3;
                 stat.tpetak=gambar1->h/3;
@@ -104,6 +108,9 @@ int main( int argc, char* args[] ){
 
                 SDL_FreeSurface(stat.gambar);
                 SDL_FreeSurface(stat.menang);
+                Mix_FreeChunk(suara);
+                Mix_CloseAudio();
+                IMG_Quit();
             }
             SDL_DestroyWindow( window );
 		}
@@ -132,6 +139,8 @@ int x1, y1, x2, y2;
             if(cocok(data)==9){
                 SDL_BlitSurface(stat.menang, 0, screenSurface, 0);
             }else{
+                Mix_Pause(1);
+                Mix_PlayChannel(1, suara, 1);
                 tampilkan(screenSurface, stat.gambar);
             }
             break;
